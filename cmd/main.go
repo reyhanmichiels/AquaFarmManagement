@@ -1,9 +1,9 @@
 package main
 
 import (
-	"AquaFarmManagement/infrastructure"
-	"AquaFarmManagement/infrastructure/database"
-	"AquaFarmManagement/rest"
+	"github.com/reyhanmichiels/AquaFarmManagement/infrastructure"
+	"github.com/reyhanmichiels/AquaFarmManagement/infrastructure/database"
+	"github.com/reyhanmichiels/AquaFarmManagement/rest"
 
 	"github.com/gin-gonic/gin"
 )

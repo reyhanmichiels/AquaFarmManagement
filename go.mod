@@ -1,4 +1,4 @@
-module AquaFarmManagement
+module github.com/reyhanmichiels/AquaFarmManagement
 
 go 1.21.0
 
