@@ -36,5 +36,5 @@ func (farmHandler *FarmHandler) Create(c *gin.Context) {
 		return
 	}
 
-	util.SuccessResponse(c, http.StatusCreated, "successfuly create farm", farm)
+	util.SuccessResponse(c, http.StatusCreated, "successfully create farm", farm)
 }
