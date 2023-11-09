@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/reyhanmichiels/AquaFarmManagement/app/farm/repository"
@@ -24,11 +25,11 @@ func NewFarmUsecase(farmRepository repository.IFarmRepository) IFarmUsecase {
 
 func (farmUsecase *FarmUsecase) Create(request domain.CreateFarmBind) (domain.Farm, any) {
 	// check for duplicate entry
-	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(domain.Farm{}, "name = ?", request.Name)
+	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&domain.Farm{}, "name = ?", request.Name)
 	if isFarmExist == nil {
 		return domain.Farm{}, util.ErrorObject{
 			Code:    http.StatusConflict,
-			Err:     isFarmExist,
+			Err:     errors.New("farm name is already used"),
 			Message: "failed to create farm",
 		}
 	}
