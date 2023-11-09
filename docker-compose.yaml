@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  db_aqua_farm_management:
+    image: postgres:latest
+    container_name: db_aqua_farm_management
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - volume_aqua_farm_management:/var/lib/postgresql/data
+    networks:
+      - network_aqua_farm_management
+
+volumes:
+  volume_aqua_farm_management:
+    name: volume_aqua_farm_management
+
+networks:
+  network_aqua_farm_management:
+    name: network_aqua_farm_management
+    driver: bridge
