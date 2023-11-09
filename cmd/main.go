@@ -15,6 +15,9 @@ func main() {
 	//connect to database
 	database.ConnectToDB()
 
+	//migrate database table
+	database.Migrate()
+
 	//init rest
 	rest := rest.NewRest(gin.New())
 
