@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	farm_handler "github.com/reyhanmichiels/AquaFarmManagement/app/farm/handler"
 )
 
 type Rest struct {
@@ -22,6 +23,10 @@ func (rest *Rest) HealthCheckRoute() {
 			"status": "success",
 		})
 	})
+}
+
+func (rest *Rest) FarmRoute(farmHandler *farm_handler.FarmHandler) {
+	rest.engine.POST("/api/farms", farmHandler.Create)
 }
 
 func (rest *Rest) Serve() {
