@@ -244,3 +244,64 @@ func TestGet(t *testing.T) {
 		getFarmsMock.Unset()
 	})
 }
+
+func TestGetFarmById(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		//call mock
+		farmResponse := domain.FarmApi{
+			ID:   "testID",
+			Name: "farm1",
+			Ponds: []domain.Pond{
+				{
+					ID:     "pondID1",
+					Name:   "pond1",
+					FarmID: "testID",
+				},
+				{
+					ID:     "pondID2",
+					Name:   "pond2",
+					FarmID: "testID",
+				},
+			},
+		}
+		var farm domain.FarmApi
+		getFarmByIdMock := farmRepositoryMock.Mock.On("GetFarmById", &farm, farmResponse.ID).Return(nil).Run(func(args mock.Arguments) {
+			arg := args[0].(*domain.FarmApi)
+			arg.ID = farmResponse.ID
+			arg.Name = farmResponse.Name
+			arg.Ponds = farmResponse.Ponds
+		})
+
+		successResponse, errorResponse := farmUsecase.GetFarmById(farmResponse.ID)
+
+		//test result
+		assert.Nil(t, errorResponse, "err response should be nil")
+
+		assert.Equal(t, farmResponse.ID, successResponse.ID, "id should be equal")
+		assert.Equal(t, farmResponse.Name, successResponse.Name, "name should be equal")
+
+		for i, v := range successResponse.Ponds {
+			assert.Equal(t, v.Name, successResponse.Ponds[i].Name, "pond name should be equal")
+			assert.Equal(t, v.ID, successResponse.Ponds[i].ID, "pond id should be equal")
+			assert.Equal(t, v.FarmID, successResponse.Ponds[i].FarmID, "farm id should be equal")
+		}
+
+		getFarmByIdMock.Unset()
+	})
+
+	t.Run("should return error when farm is not exist", func(t *testing.T) {
+		//call mock
+		var farm domain.FarmApi
+		getFarmByIdMock := farmRepositoryMock.Mock.On("GetFarmById", &farm, "testID").Return(errors.New("record not found"))
+
+		_, errorResponse := farmUsecase.GetFarmById("testID")
+
+		//test result
+		errObjectFromResponse := errorResponse.(util.ErrorObject)
+		assert.Equal(t, errors.New("record not found"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, http.StatusNotFound, errObjectFromResponse.Code, "status code should be equal")
+		assert.Equal(t, "failed to get farm by id", errObjectFromResponse.Message, "message should be equal")
+
+		getFarmByIdMock.Unset()
+	})
+}
