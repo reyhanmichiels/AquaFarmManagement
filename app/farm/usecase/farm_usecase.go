@@ -12,6 +12,7 @@ import (
 type IFarmUsecase interface {
 	Create(request domain.FarmBind) (domain.Farm, any)
 	Update(request domain.FarmBind, farmId string) (domain.Farm, any)
+	Get() ([]domain.Farm, any)
 }
 
 type FarmUsecase struct {
@@ -77,4 +78,26 @@ func (farmUsecase *FarmUsecase) Update(request domain.FarmBind, farmId string) (
 	}
 
 	return farm, nil
+}
+
+func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
+	var farms []domain.Farm
+	err := farmUsecase.farmRepository.GetFarms(&farms)
+	if err != nil {
+		return nil, util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to get all farm",
+		}
+	}
+
+	if len(farms) == 0 {
+		return nil, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("farm not found"),
+			Message: "failed to get all farm",
+		}
+	}
+
+	return farms, nil
 }
