@@ -39,3 +39,13 @@ func (farmUsecaseMock *FarmUsecaseMock) Get() ([]domain.Farm, any) {
 
 	return args[0].([]domain.Farm), nil
 }
+
+func (farmUsecaseMock *FarmUsecaseMock) GetFarmById(farmId string) (domain.FarmApi, any) {
+	args := farmUsecaseMock.Mock.Called(farmId)
+
+	if args[1] != nil {
+		return domain.FarmApi{}, args[1].(util.ErrorObject)
+	}
+
+	return args[0].(domain.FarmApi), nil
+}
