@@ -48,7 +48,7 @@ func (farmHandler *FarmHandler) Update(c *gin.Context) {
 		return
 	}
 
-	farmId := c.Param(":farmId")
+	farmId := c.Param("farmId")
 
 	//update farm
 	farm, errObject := farmHandler.farmUsecase.Update(request, farmId)
