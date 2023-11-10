@@ -87,7 +87,7 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 		return nil, util.ErrorObject{
 			Code:    http.StatusInternalServerError,
 			Err:     err,
-			Message: "failed to get farm",
+			Message: "failed to get all farm",
 		}
 	}
 
@@ -95,7 +95,7 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 		return nil, util.ErrorObject{
 			Code:    http.StatusNotFound,
 			Err:     errors.New("farm not found"),
-			Message: "failed to get farm",
+			Message: "failed to get all farm",
 		}
 	}
 
