@@ -22,7 +22,7 @@ var farmUsecase = NewFarmUsecase(&farmRepositoryMock)
 func TestCreate(t *testing.T) {
 	t.Run("should return success", func(t *testing.T) {
 		//prepare data for func parameter
-		parameter := domain.CreateFarmBind{
+		parameter := domain.FarmBind{
 			Name: "test_name",
 		}
 
@@ -46,7 +46,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("should return error when duplicate entry", func(t *testing.T) {
 		//prepare data for func parameter
-		parameter := domain.CreateFarmBind{
+		parameter := domain.FarmBind{
 			Name: "test_name",
 		}
 
@@ -67,7 +67,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("should return error when failed to create farm", func(t *testing.T) {
 		//prepare data for func parameter
-		parameter := domain.CreateFarmBind{
+		parameter := domain.FarmBind{
 			Name: "test_name",
 		}
 

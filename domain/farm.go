@@ -22,6 +22,6 @@ func (farm *Farm) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-type CreateFarmBind struct {
+type FarmBind struct {
 	Name string `json:"name" binding:"required,max=100,min=4"`
 }

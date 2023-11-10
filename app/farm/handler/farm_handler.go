@@ -21,7 +21,7 @@ func NewFarmHandler(farmUsecase usecase.IFarmUsecase) *FarmHandler {
 
 func (farmHandler *FarmHandler) Create(c *gin.Context) {
 	//bind and validate data
-	var request domain.CreateFarmBind
+	var request domain.FarmBind
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		util.FailResponse(c, http.StatusBadRequest, "failed to bind input", err)
