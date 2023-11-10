@@ -29,3 +29,13 @@ func (farmUsecaseMock *FarmUsecaseMock) Update(request domain.FarmBind, farmId s
 
 	return args[0].(domain.Farm), nil
 }
+
+func (farmUsecaseMock *FarmUsecaseMock) Get() ([]domain.Farm, any) {
+	args := farmUsecaseMock.Mock.Called()
+
+	if args[1] != nil {
+		return nil, args[1].(util.ErrorObject)
+	}
+
+	return args[0].([]domain.Farm), nil
+}
