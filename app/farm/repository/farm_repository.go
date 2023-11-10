@@ -9,6 +9,7 @@ type IFarmRepository interface {
 	FindFarmByCondition(farm any, condition string, value any) error
 	CreateFarm(farm *domain.Farm) error
 	UpdateFarm(farm *domain.Farm) error
+	GetFarms(farms *[]domain.Farm) error
 }
 
 type FarmRepository struct {
@@ -54,5 +55,14 @@ func (farmRepo *FarmRepository) UpdateFarm(farm *domain.Farm) error {
 	}
 
 	tx.Commit()
+	return nil
+}
+
+func (farmRepo *FarmRepository) GetFarms(farms *[]domain.Farm) error {
+	err := farmRepo.db.Find(farms).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
