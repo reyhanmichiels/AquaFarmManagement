@@ -49,3 +49,13 @@ func (farmUsecaseMock *FarmUsecaseMock) GetFarmById(farmId string) (domain.FarmA
 
 	return args[0].(domain.FarmApi), nil
 }
+
+func (farmUsecaseMock *FarmUsecaseMock) Delete(farmId string) any {
+	args := farmUsecaseMock.Mock.Called(farmId)
+
+	if args[0] != nil {
+		return args[0].(util.ErrorObject)
+	}
+
+	return nil
+}
