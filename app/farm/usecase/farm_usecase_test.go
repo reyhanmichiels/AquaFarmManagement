@@ -31,7 +31,11 @@ func TestCreate(t *testing.T) {
 			Name: parameter.Name,
 		}
 		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
-		createFarmMock := farmRepositoryMock.Mock.On("CreateFarm", &farm).Return(nil)
+		createFarmMock := farmRepositoryMock.Mock.On("CreateFarm", &farm).Return(nil).Run(func(args mock.Arguments) {
+			arg := args[0].(*domain.Farm)
+			arg.ID = "testId"
+			arg.Name = parameter.Name
+		})
 
 		//call usecase
 		successResponse, errorResponse := farmUsecase.Create(parameter)
@@ -39,6 +43,7 @@ func TestCreate(t *testing.T) {
 		//test result
 		assert.Nil(t, errorResponse, "err response should be nil")
 		assert.Equal(t, parameter.Name, successResponse.Name, "name should be equal")
+		assert.Equal(t, "testId", successResponse.ID, "name should be equal")
 
 		findFarmMock.Unset()
 		createFarmMock.Unset()
