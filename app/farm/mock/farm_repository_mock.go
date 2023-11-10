@@ -48,3 +48,13 @@ func (farmRepoMock *FarmRepositoryMock) GetFarms(farms *[]domain.Farm) error {
 
 	return nil
 }
+
+func (farmRepoMock *FarmRepositoryMock) GetFarmById(farm *domain.FarmApi, farmId string) error {
+	args := farmRepoMock.Mock.Called(farm, farmId)
+
+	if args[0] != nil {
+		return args[0].(error)
+	}
+
+	return nil
+}
