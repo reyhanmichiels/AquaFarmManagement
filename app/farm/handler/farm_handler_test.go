@@ -9,14 +9,14 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	farm_usecase "github.com/reyhanmichiels/AquaFarmManagement/app/farm/usecase"
+	farm_mock "github.com/reyhanmichiels/AquaFarmManagement/app/farm/mock"
 	"github.com/reyhanmichiels/AquaFarmManagement/domain"
 	"github.com/reyhanmichiels/AquaFarmManagement/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var farmUsecaseMock = farm_usecase.FarmUsecaseMock{
+var farmUsecaseMock = farm_mock.FarmUsecaseMock{
 	Mock: mock.Mock{},
 }
 

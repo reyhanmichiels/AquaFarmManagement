@@ -1,4 +1,4 @@
-package usecase
+package mock
 
 import (
 	"github.com/reyhanmichiels/AquaFarmManagement/domain"
