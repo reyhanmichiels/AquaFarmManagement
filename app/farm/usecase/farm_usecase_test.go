@@ -176,3 +176,71 @@ func TestUpdate(t *testing.T) {
 		updateFarmMock.Unset()
 	})
 }
+
+func TestGet(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		//call mock
+		farmsResponse := []domain.Farm{
+			{
+				ID:   "testID1",
+				Name: "testName1",
+			},
+			{
+				ID:   "testID2",
+				Name: "testName2",
+			},
+			{
+				ID:   "testID3",
+				Name: "testName3",
+			},
+		}
+		var farms []domain.Farm
+		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(nil).Run(func(args mock.Arguments) {
+			arg := args[0].(*[]domain.Farm)
+			*arg = append(*arg, farmsResponse...)
+		})
+
+		successResponse, errorResponse := farmUsecase.Get()
+
+		//test result
+		assert.Nil(t, errorResponse, "err response should be nil")
+		for i := range successResponse {
+			assert.Equal(t, farmsResponse[i].Name, successResponse[i].Name, "name should be equal")
+			assert.Equal(t, farmsResponse[i].ID, successResponse[i].ID, "id should be equal")
+		}
+
+		getFarmsMock.Unset()
+	})
+
+	t.Run("should return error when sql failed", func(t *testing.T) {
+		//call mock
+		var farms []domain.Farm
+		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(errors.New("sql failed"))
+
+		_, errorResponse := farmUsecase.Get()
+
+		//test result
+		errObjectFromResponse := errorResponse.(util.ErrorObject)
+		assert.Equal(t, errors.New("sql failed"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, http.StatusInternalServerError, errObjectFromResponse.Code, "status code should be equal")
+		assert.Equal(t, "failed to get all farm", errObjectFromResponse.Message, "message should be equal")
+
+		getFarmsMock.Unset()
+	})
+
+	t.Run("should return error when farm is not exist", func(t *testing.T) {
+		//call mock
+		var farms []domain.Farm
+		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(nil)
+
+		_, errorResponse := farmUsecase.Get()
+
+		//test result
+		errObjectFromResponse := errorResponse.(util.ErrorObject)
+		assert.Equal(t, errors.New("farm not found"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, http.StatusNotFound, errObjectFromResponse.Code, "status code should be equal")
+		assert.Equal(t, "failed to get all farm", errObjectFromResponse.Message, "message should be equal")
+
+		getFarmsMock.Unset()
+	})
+}
