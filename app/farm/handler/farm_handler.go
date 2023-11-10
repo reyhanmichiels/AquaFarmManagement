@@ -72,3 +72,19 @@ func (farmHandler *FarmHandler) Get(c *gin.Context) {
 
 	util.SuccessResponse(c, http.StatusOK, "successfully get all farm", farms)
 }
+
+func (farmHandler *FarmHandler) GetFarmById(c *gin.Context) {
+	//bind param
+	farmId := c.Param("farmId")
+
+	//get farm by id
+	farm, errObject := farmHandler.farmUsecase.GetFarmById(farmId)
+	if errObject != nil {
+		errObject := errObject.(util.ErrorObject)
+		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
+		return
+	}
+	
+	util.SuccessResponse(c, http.StatusOK, "successfully get farm by id", farm)
+	
+} 
