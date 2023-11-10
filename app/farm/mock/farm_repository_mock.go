@@ -28,3 +28,13 @@ func (farmRepoMock *FarmRepositoryMock) CreateFarm(farm *domain.Farm) error {
 
 	return nil
 }
+
+func (farmRepoMock *FarmRepositoryMock) UpdateFarm(farm *domain.Farm) error {
+	args := farmRepoMock.Mock.Called(farm)
+
+	if args[0] != nil {
+		return args[0].(error)
+	}
+
+	return nil
+}
