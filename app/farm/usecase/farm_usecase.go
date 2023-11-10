@@ -14,6 +14,7 @@ type IFarmUsecase interface {
 	Update(request domain.FarmBind, farmId string) (domain.Farm, any)
 	Get() ([]domain.Farm, any)
 	GetFarmById(farmId string) (domain.FarmApi, any)
+	Delete(farmId string) any
 }
 
 type FarmUsecase struct {
@@ -115,4 +116,29 @@ func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any)
 	}
 
 	return farm, nil
+}
+
+func (farmUsecase *FarmUsecase) Delete(farmId string) any {
+	//check is farm exist
+	var farm domain.Farm
+	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&farm, "id = ?", farmId)
+	if isFarmExist != nil {
+		return util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     isFarmExist,
+			Message: "failed to delete farm",
+		}
+	}
+
+	//delete farm
+	err := farmUsecase.farmRepository.DeleteFarm(&farm)
+	if err != nil {
+		return util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to delete farm",
+		}
+	}
+
+	return nil
 }

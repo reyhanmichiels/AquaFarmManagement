@@ -449,7 +449,76 @@ func TestGetFarmById(t *testing.T) {
 		assert.Equal(t, "error", responseData["status"], "status should be equal")
 		assert.Equal(t, "record not found", responseData["error"], "error should be equal")
 		assert.Equal(t, errObject.Message, responseData["message"], "message should be equal")
-		
+
+		mockCall.Unset()
+	})
+}
+
+func TestDeleteFarm(t *testing.T) {
+	t.Run("should can delete farm", func(t *testing.T) {
+		// call mock
+		mockCall := farmUsecaseMock.Mock.On("Delete", "testID").Return(nil)
+
+		// call handler
+		engine := gin.Default()
+		engine.DELETE("/api/farms/:farmId", farmHandler.Delete)
+
+		response := httptest.NewRecorder()
+		requestCall, err := http.NewRequest("DELETE", "/api/farms/testID", nil)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		engine.ServeHTTP(response, requestCall)
+
+		//test response
+		var responseData map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		assert.Equal(t, http.StatusOK, response.Code, "status code should be equal")
+		assert.Equal(t, "success", responseData["status"], "status should be equal")
+		assert.Equal(t, "successfully delete farm", responseData["message"], "message should be equal")
+		assert.Nil(t, responseData["data"], "data should be nil")
+
+		mockCall.Unset()
+	})
+
+	t.Run("should reject when usecase call return error", func(t *testing.T) {
+		// call mock
+		errObject := util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Message: "failed to delete farm",
+			Err:     errors.New("record not found"),
+		}
+		mockCall := farmUsecaseMock.Mock.On("Delete", "testID").Return(errObject)
+
+		// call handler
+		engine := gin.Default()
+		engine.DELETE("/api/farms/:farmId", farmHandler.Delete)
+
+		response := httptest.NewRecorder()
+		requestCall, err := http.NewRequest("DELETE", "/api/farms/testID", nil)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		engine.ServeHTTP(response, requestCall)
+
+		//test response
+		var responseData map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseData["status"], "status should be equal")
+		assert.Equal(t, "record not found", responseData["error"], "error should be equal")
+		assert.Equal(t, errObject.Message, responseData["message"], "message should be equal")
+
 		mockCall.Unset()
 	})
 }
