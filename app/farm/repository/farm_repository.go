@@ -11,6 +11,7 @@ type IFarmRepository interface {
 	UpdateFarm(farm *domain.Farm) error
 	GetFarms(farms *[]domain.Farm) error
 	GetFarmById(farm *domain.FarmApi, farmId string) error
+	DeleteFarm(farm *domain.Farm) error
 }
 
 type FarmRepository struct {
@@ -74,5 +75,18 @@ func (farmRepo *FarmRepository) GetFarmById(farm *domain.FarmApi, farmId string)
 		return err
 	}
 
+	return nil
+}
+
+func (farmRepo *FarmRepository) DeleteFarm(farm *domain.Farm) error {
+	tx := farmRepo.db.Begin()
+
+	err := tx.Delete(farm).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
 	return nil
 }
