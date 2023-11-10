@@ -27,6 +27,7 @@ func (rest *Rest) HealthCheckRoute() {
 
 func (rest *Rest) FarmRoute(farmHandler *farm_handler.FarmHandler) {
 	rest.engine.POST("/api/farms", farmHandler.Create)
+	rest.engine.PUT("/api/farms/:farmId", farmHandler.Update)
 }
 
 func (rest *Rest) Serve() {
