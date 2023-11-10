@@ -84,7 +84,21 @@ func (farmHandler *FarmHandler) GetFarmById(c *gin.Context) {
 		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
 		return
 	}
-	
+
 	util.SuccessResponse(c, http.StatusOK, "successfully get farm by id", farm)
-	
-} 
+}
+
+func (farmHandler *FarmHandler) Delete(c *gin.Context) {
+	//bind param
+	farmId := c.Param("farmId")
+
+	//delete farm
+	errObject := farmHandler.farmUsecase.Delete(farmId)
+	if errObject != nil {
+		errObject := errObject.(util.ErrorObject)
+		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
+		return
+	}
+
+	util.SuccessResponse(c, http.StatusOK, "successfully delete farm", nil)
+}
