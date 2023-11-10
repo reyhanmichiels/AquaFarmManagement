@@ -13,6 +13,7 @@ type IFarmUsecase interface {
 	Create(request domain.FarmBind) (domain.Farm, any)
 	Update(request domain.FarmBind, farmId string) (domain.Farm, any)
 	Get() ([]domain.Farm, any)
+	GetFarmById(farmId string) (domain.FarmApi, any)
 }
 
 type FarmUsecase struct {
@@ -100,4 +101,18 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 	}
 
 	return farms, nil
+}
+
+func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any) {
+	var farm domain.FarmApi
+	isFarmExist := farmUsecase.farmRepository.GetFarmById(&farm, farmId)
+	if isFarmExist != nil {
+		return domain.FarmApi{}, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     isFarmExist,
+			Message: "failed to get farm by id",
+		}
+	}
+
+	return farm, nil
 }
