@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	farm_handler "github.com/reyhanmichiels/AquaFarmManagement/app/farm/handler"
+	pond_handler "github.com/reyhanmichiels/AquaFarmManagement/app/pond/handler"
 )
 
 type Rest struct {
@@ -31,6 +32,10 @@ func (rest *Rest) FarmRoute(farmHandler *farm_handler.FarmHandler) {
 	rest.engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
 	rest.engine.PUT("/api/farms/:farmId", farmHandler.Update)
 	rest.engine.DELETE("/api/farms/:farmId", farmHandler.Delete)
+}
+
+func (rest *Rest) PondRoute(pondHanler *pond_handler.PondHandler) {
+	rest.engine.POST("/api/ponds", pondHanler.Create)
 }
 
 func (rest *Rest) Serve() {
