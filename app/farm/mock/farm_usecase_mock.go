@@ -10,7 +10,7 @@ type FarmUsecaseMock struct {
 	Mock mock.Mock
 }
 
-func (farmUsecaseMock *FarmUsecaseMock) Create(request domain.CreateFarmBind) (domain.Farm, any) {
+func (farmUsecaseMock *FarmUsecaseMock) Create(request domain.FarmBind) (domain.Farm, any) {
 	args := farmUsecaseMock.Mock.Called(request)
 
 	if args[1] != nil {

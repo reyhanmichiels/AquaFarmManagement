@@ -10,7 +10,8 @@ import (
 )
 
 type IFarmUsecase interface {
-	Create(request domain.CreateFarmBind) (domain.Farm, any)
+	Create(request domain.FarmBind) (domain.Farm, any)
+	Update(request domain.FarmBind, farmId string) (domain.Farm, any)
 }
 
 type FarmUsecase struct {
@@ -23,7 +24,7 @@ func NewFarmUsecase(farmRepository repository.IFarmRepository) IFarmUsecase {
 	}
 }
 
-func (farmUsecase *FarmUsecase) Create(request domain.CreateFarmBind) (domain.Farm, any) {
+func (farmUsecase *FarmUsecase) Create(request domain.FarmBind) (domain.Farm, any) {
 	// check for duplicate entry
 	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&domain.Farm{}, "name = ?", request.Name)
 	if isFarmExist == nil {
@@ -44,6 +45,34 @@ func (farmUsecase *FarmUsecase) Create(request domain.CreateFarmBind) (domain.Fa
 			Code:    http.StatusInternalServerError,
 			Err:     err,
 			Message: "failed to create farm",
+		}
+	}
+
+	return farm, nil
+}
+
+func (farmUsecase *FarmUsecase) Update(request domain.FarmBind, farmId string) (domain.Farm, any) {
+	// check for duplicate entry
+	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&domain.Farm{}, "name = ?", request.Name)
+	if isFarmExist == nil {
+		return domain.Farm{}, util.ErrorObject{
+			Code:    http.StatusConflict,
+			Err:     errors.New("farm name is already used"),
+			Message: "failed to update farm",
+		}
+	}
+
+	// update farm
+	farm := domain.Farm{
+		ID:   farmId,
+		Name: request.Name,
+	}
+	err := farmUsecase.farmRepository.UpdateFarm(&farm)
+	if err != nil {
+		return domain.Farm{}, util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to update farm",
 		}
 	}
 

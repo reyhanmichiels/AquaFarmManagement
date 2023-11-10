@@ -25,7 +25,7 @@ var farmHandler = NewFarmHandler(&farmUsecaseMock)
 func TestCreateFarm(t *testing.T) {
 	t.Run("should create farm", func(t *testing.T) {
 		//prepare data for call handler
-		data := domain.CreateFarmBind{
+		data := domain.FarmBind{
 			Name: "testName",
 		}
 
@@ -100,7 +100,7 @@ func TestCreateFarm(t *testing.T) {
 
 	t.Run("should reject when usecase call return error", func(t *testing.T) {
 		//prepare data for call handler
-		data := domain.CreateFarmBind{
+		data := domain.FarmBind{
 			Name: "testName",
 		}
 
