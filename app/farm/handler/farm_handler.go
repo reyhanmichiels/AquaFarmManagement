@@ -60,3 +60,15 @@ func (farmHandler *FarmHandler) Update(c *gin.Context) {
 
 	util.SuccessResponse(c, http.StatusOK, "successfully update farm", farm)
 }
+
+func (farmHandler *FarmHandler) Get(c *gin.Context) {
+	//get farms
+	farms, errObject := farmHandler.farmUsecase.Get()
+	if errObject != nil {
+		errObject := errObject.(util.ErrorObject)
+		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
+		return
+	}
+
+	util.SuccessResponse(c, http.StatusOK, "successfully get all farm", farms)
+}
