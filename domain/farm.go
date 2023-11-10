@@ -25,3 +25,11 @@ func (farm *Farm) BeforeCreate(tx *gorm.DB) error {
 type FarmBind struct {
 	Name string `json:"name" binding:"required,max=100,min=4"`
 }
+
+type FarmApi struct {
+	ID        string    `json:"id"`
+	Ponds     []Pond    `json:"ponds" gorm:"foreignKey:FarmID"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
