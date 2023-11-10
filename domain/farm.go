@@ -9,11 +9,12 @@ import (
 
 // Model for Farm entity
 type Farm struct {
-	ID        string    `json:"id" gorm:"type:uuid; not null; primary key"`
-	Ponds     []Pond    `json:"-"`
-	Name      string    `json:"name" gorm:"type:varchar(100); not null; unique"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        string         `json:"id" gorm:"type:uuid; not null; primary key"`
+	Ponds     []Pond         `json:"-"`
+	Name      string         `json:"name" gorm:"type:varchar(100); not null; unique"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }
 
 // Automate generate uuid when create farm

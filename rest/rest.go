@@ -30,6 +30,7 @@ func (rest *Rest) FarmRoute(farmHandler *farm_handler.FarmHandler) {
 	rest.engine.POST("/api/farms", farmHandler.Create)
 	rest.engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
 	rest.engine.PUT("/api/farms/:farmId", farmHandler.Update)
+	rest.engine.DELETE("/api/farms/:farmId", farmHandler.Delete)
 }
 
 func (rest *Rest) Serve() {
