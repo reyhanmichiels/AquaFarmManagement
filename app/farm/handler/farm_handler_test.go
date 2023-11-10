@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -353,6 +354,102 @@ func TestGetFarm(t *testing.T) {
 		assert.Equal(t, "farm not found", responseData["error"], "error should be equal")
 		assert.Equal(t, errObject.Message, responseData["message"], "message should be equal")
 
+		mockCall.Unset()
+	})
+}
+
+func TestGetFarmById(t *testing.T) {
+	t.Run("should get farm by id", func(t *testing.T) {
+		// call mock
+		mockCallResponse := domain.FarmApi{
+			ID:   "testID",
+			Name: "farm1",
+			Ponds: []domain.Pond{
+				{
+					ID:     "pondID1",
+					Name:   "pond1",
+					FarmID: "testID",
+				},
+				{
+					ID:     "pondID2",
+					Name:   "pond2",
+					FarmID: "testID",
+				},
+			},
+		}
+
+		mockCall := farmUsecaseMock.Mock.On("GetFarmById", mockCallResponse.ID).Return(mockCallResponse, nil)
+
+		// call handler
+		engine := gin.Default()
+		engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
+
+		response := httptest.NewRecorder()
+		requestCall, err := http.NewRequest("GET", fmt.Sprintf("/api/farms/%s", mockCallResponse.ID), nil)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		engine.ServeHTTP(response, requestCall)
+
+		//test response
+		var responseData map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		farmData := responseData["data"].(map[string]any)
+		assert.Equal(t, http.StatusOK, response.Code, "status code should be equal")
+		assert.Equal(t, "success", responseData["status"], "status should be equal")
+		assert.Equal(t, "successfully get farm by id", responseData["message"], "message should be equal")
+		assert.Equal(t, mockCallResponse.ID, farmData["id"], "farm id should be equal")
+		assert.Equal(t, mockCallResponse.Name, farmData["name"], "farm name should be equal")
+
+		pondsData := farmData["ponds"].([]interface{})
+
+		for i, v := range pondsData {
+			v := v.(map[string]any)
+			assert.Equal(t, mockCallResponse.Ponds[i].ID, v["id"], "pond id should be equal")
+			assert.Equal(t, mockCallResponse.Ponds[i].FarmID, v["farm_id"], "farm id should be equal")
+			assert.Equal(t, mockCallResponse.Ponds[i].Name, v["name"], "pond name should be equal")
+		}
+		mockCall.Unset()
+	})
+
+	t.Run("should reject when usecase call return error", func(t *testing.T) {
+		// call mock
+		errObject := util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Message: "failed to get farm by id",
+			Err:     errors.New("record not found"),
+		}
+		mockCall := farmUsecaseMock.Mock.On("GetFarmById", "testID").Return(nil, errObject)
+
+		// call handler
+		engine := gin.Default()
+		engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
+
+		response := httptest.NewRecorder()
+		requestCall, err := http.NewRequest("GET", "/api/farms/testID", nil)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		engine.ServeHTTP(response, requestCall)
+
+		//test response
+		var responseData map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseData["status"], "status should be equal")
+		assert.Equal(t, "record not found", responseData["error"], "error should be equal")
+		assert.Equal(t, errObject.Message, responseData["message"], "message should be equal")
+		
 		mockCall.Unset()
 	})
 }
