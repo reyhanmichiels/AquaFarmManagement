@@ -305,3 +305,63 @@ func TestGetFarmById(t *testing.T) {
 		getFarmByIdMock.Unset()
 	})
 }
+
+func TestDelete(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		//prepare data for func parameter
+		farmId := "testId"
+
+		//call mock
+		var farm domain.Farm
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &farm, "id = ?", farmId).Return(nil)
+		updateFarmMock := farmRepositoryMock.Mock.On("DeleteFarm", &farm).Return(nil)
+
+		errorResponse := farmUsecase.Delete(farmId)
+
+		//test result
+		assert.Nil(t, errorResponse, "err response should be nil")
+
+		findFarmMock.Unset()
+		updateFarmMock.Unset()
+	})
+
+	t.Run("should return error when farm not found", func(t *testing.T) {
+		//prepare data for func parameter
+		farmId := "testId"
+
+		//call mock
+		var farm domain.Farm
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &farm, "id = ?", farmId).Return(errors.New("record not found"))
+
+		errorResponse := farmUsecase.Delete(farmId)
+
+		//test result
+		errObject := errorResponse.(util.ErrorObject)
+		assert.Equal(t, http.StatusNotFound, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to delete farm", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("record not found"), errObject.Err, "error should be equal")
+
+		findFarmMock.Unset()
+	})
+
+	t.Run("should return error when sql failed", func(t *testing.T) {
+		//prepare data for func parameter
+		farmId := "testId"
+
+		//call mock
+		var farm domain.Farm
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &farm, "id = ?", farmId).Return(nil)
+		updateFarmMock := farmRepositoryMock.Mock.On("DeleteFarm", &farm).Return(errors.New("sql failed"))
+
+		errorResponse := farmUsecase.Delete(farmId)
+
+		//test result
+		errObject := errorResponse.(util.ErrorObject)
+		assert.Equal(t, http.StatusInternalServerError, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to delete farm", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("sql failed"), errObject.Err, "error should be equal")
+
+		findFarmMock.Unset()
+		updateFarmMock.Unset()
+	})
+}
