@@ -29,3 +29,13 @@ func (pondUsecaseMock *PondUsecaseMock) Update(request domain.PondBind, pondId s
 
 	return args[0].(domain.Pond), nil
 }
+
+func (pondUsecaseMock *PondUsecaseMock) Get() ([]domain.Pond, any) {
+	args := pondUsecaseMock.Mock.Called()
+
+	if args[1] != nil {
+		return []domain.Pond{}, args[1].(util.ErrorObject)
+	}
+
+	return args[0].([]domain.Pond), nil
+}

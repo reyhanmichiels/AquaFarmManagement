@@ -13,6 +13,8 @@ import (
 type IPondUsecase interface {
 	Create(request domain.PondBind) (domain.Pond, any)
 	Update(request domain.PondBind, pondId string) (domain.Pond, any)
+	Get() ([]domain.Pond, any)
+	GetPondById(pondId string) (domain.PondApi, any)
 }
 
 type PondUsecase struct {
@@ -103,5 +105,46 @@ func (pondUsecase *PondUsecase) Update(request domain.PondBind, pondId string) (
 			Message: "failed to update pond",
 		}
 	}
+	return pond, nil
+}
+
+func (pondUsecase *PondUsecase) Get() ([]domain.Pond, any) {
+	// get ponds
+	var ponds []domain.Pond
+	err := pondUsecase.pondRepository.GetPonds(&ponds)
+	if err != nil {
+		return []domain.Pond{}, util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to get all pond",
+		}
+	}
+
+	// check if pond exist
+	if len(ponds) == 0 {
+		return []domain.Pond{}, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("pond not found"),
+			Message: "failed to get all pond",
+		}
+	}
+
+	return ponds, nil
+}
+
+func (pondUsecase *PondUsecase) GetPondById(pondId string) (domain.PondApi, any) {
+	// get ponds
+	var pond domain.PondApi
+	isPondExist := pondUsecase.pondRepository.GetPondById(&pond, pondId)
+
+	// check if pond exist
+	if isPondExist != nil {
+		return domain.PondApi{}, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("pond not found"),
+			Message: "failed to get pond by id",
+		}
+	}
+
 	return pond, nil
 }
