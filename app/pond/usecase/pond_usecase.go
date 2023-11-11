@@ -13,6 +13,7 @@ import (
 type IPondUsecase interface {
 	Create(request domain.PondBind) (domain.Pond, any)
 	Update(request domain.PondBind, pondId string) (domain.Pond, any)
+	Get() ([]domain.Pond, any)
 }
 
 type PondUsecase struct {
@@ -104,4 +105,28 @@ func (pondUsecase *PondUsecase) Update(request domain.PondBind, pondId string) (
 		}
 	}
 	return pond, nil
+}
+
+func (pondUsecase *PondUsecase) Get() ([]domain.Pond, any) {
+	// get ponds
+	var ponds []domain.Pond
+	err := pondUsecase.pondRepository.GetPonds(&ponds)
+	if err != nil {
+		return []domain.Pond{}, util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to get all pond",
+		}
+	}
+
+	// check if pond exist
+	if len(ponds) == 0 {
+		return []domain.Pond{}, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("pond not found"),
+			Message: "failed to get all pond",
+		}
+	}
+
+	return ponds, nil
 }

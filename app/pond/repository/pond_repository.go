@@ -9,6 +9,7 @@ type IPondRepository interface {
 	FindPondByCondition(pond any, condition string, value any) error
 	CreatePond(pond *domain.Pond) error
 	UpdatePond(pond *domain.Pond) error
+	GetPonds(ponds *[]domain.Pond) error
 }
 
 type PondRepository struct {
@@ -50,4 +51,9 @@ func (pondRepository *PondRepository) UpdatePond(pond *domain.Pond) error {
 
 	tx.Commit()
 	return nil
+}
+
+func (pondRepository *PondRepository) GetPonds(ponds *[]domain.Pond) error {
+	err := pondRepository.db.Find(&ponds).Error
+	return err
 }
