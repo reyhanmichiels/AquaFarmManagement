@@ -19,3 +19,13 @@ func (pondUsecaseMock *PondUsecaseMock) Create(request domain.PondBind) (domain.
 
 	return args[0].(domain.Pond), nil
 }
+
+func (pondUsecaseMock *PondUsecaseMock) Update(request domain.PondBind, pondId string) (domain.Pond, any) {
+	args := pondUsecaseMock.Mock.Called(request, pondId)
+
+	if args[1] != nil {
+		return domain.Pond{}, args[1].(util.ErrorObject)
+	}
+
+	return args[0].(domain.Pond), nil
+}
