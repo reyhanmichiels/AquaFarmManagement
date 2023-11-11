@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -128,6 +129,144 @@ func TestCreate(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request, err := http.NewRequest("POST", "/api/ponds", bytes.NewBuffer(requestBodyJson))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseBody["status"], "status should be equal")
+		assert.Equal(t, errObject.Message, responseBody["message"], "message should be equal")
+		assert.Equal(t, errObject.Err.Error(), responseBody["error"], "error should be equal")
+
+		mockCall.Unset()
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	t.Run("should can update  pond", func(t *testing.T) {
+		// prepare request param
+		pondId := "pondID"
+
+		// prepare request body
+		requestBody := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		requestBodyJson, err := json.Marshal(requestBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// call mock
+		mockResponse := domain.Pond{
+			ID:     pondId,
+			Name:   requestBody.Name,
+			FarmID: requestBody.FarmID,
+		}
+		mockCall := pondUsecaseMock.Mock.On("Update", requestBody, pondId).Return(mockResponse, nil)
+
+		// call handler
+		engine := gin.Default()
+		engine.PUT("/api/ponds/:pondId", pondHandler.Update)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("PUT", fmt.Sprintf("/api/ponds/%s", pondId), bytes.NewBuffer(requestBodyJson))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, http.StatusCreated, response.Code, "status code should be equal")
+		assert.Equal(t, "success", responseBody["status"], "status should be equal")
+		assert.Equal(t, "successfully create pond", responseBody["message"], "message should be equal")
+
+		pondData := responseBody["data"].(map[string]any)
+
+		assert.Equal(t, mockResponse.ID, pondData["id"], "pond id should be equal")
+		assert.Equal(t, mockResponse.Name, pondData["name"], "pond name should be equal")
+		assert.Equal(t, mockResponse.FarmID, pondData["farm_id"], "farm id should be equal")
+
+		mockCall.Unset()
+	})
+
+	t.Run("should reject when request invalid", func(t *testing.T) {
+		// prepare request param
+		pondId := "pondID"
+
+		// call handler
+		engine := gin.Default()
+		engine.PUT("/api/ponds/:pondId", pondHandler.Update)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("PUT", fmt.Sprintf("/api/ponds/%s", pondId), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, http.StatusBadRequest, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseBody["status"], "status should be equal")
+		assert.Equal(t, "failed to bind request", responseBody["message"], "message should be equal")
+	})
+
+	t.Run("should reject when usecase call return error", func(t *testing.T) {
+		// prepare request param
+		pondId := "pondID"
+
+		// prepare request body
+		requestBody := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		requestBodyJson, err := json.Marshal(requestBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// call mock
+		errObject := util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     errors.New("testError"),
+			Message: "test message",
+		}
+		mockCall := pondUsecaseMock.Mock.On("Update", requestBody, pondId).Return(nil, errObject)
+
+		// call handler
+		engine := gin.Default()
+		engine.PUT("/api/ponds/:pondId", pondHandler.Update)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("PUT", fmt.Sprintf("/api/ponds/%s", pondId), bytes.NewBuffer(requestBodyJson))
 		if err != nil {
 			t.Fatal(err)
 		}
