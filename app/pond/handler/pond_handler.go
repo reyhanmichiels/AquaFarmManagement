@@ -88,3 +88,18 @@ func (pondHandler *PondHandler) GetPondById(c *gin.Context) {
 
 	util.SuccessResponse(c, http.StatusOK, "successfully get pond by id", pond)
 }
+
+func (pondHandler *PondHandler) Delete(c *gin.Context) {
+	// bind param
+	pondId := c.Param("pondId")
+
+	// delete pond
+	errObject := pondHandler.pondUsecase.Delete(pondId)
+	if errObject != nil {
+		errObject := errObject.(util.ErrorObject)
+		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
+		return
+	}
+
+	util.SuccessResponse(c, http.StatusOK, "successfully delete pond", nil)
+}
