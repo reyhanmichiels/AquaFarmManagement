@@ -58,3 +58,13 @@ func (pondRepositoryMock *PondRepositoryMock) GetPondById(pond *domain.PondApi, 
 
 	return nil
 }
+
+func (pondRepositoryMock *PondRepositoryMock) DeletePond(pond *domain.Pond) error {
+	args := pondRepositoryMock.Mock.Called(pond)
+
+	if args[0] != nil {
+		return args[0].(error)
+	}
+
+	return nil
+}
