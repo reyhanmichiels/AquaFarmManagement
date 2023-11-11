@@ -71,7 +71,7 @@ func (pondHandler *PondHandler) Get(c *gin.Context) {
 		return
 	}
 
-	util.SuccessResponse(c, http.StatusCreated, "successfully get all pond", ponds)
+	util.SuccessResponse(c, http.StatusOK, "successfully get all pond", ponds)
 }
 
 func (pondHandler *PondHandler) GetPondById(c *gin.Context) {
