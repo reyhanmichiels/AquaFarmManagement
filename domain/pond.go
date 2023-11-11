@@ -27,3 +27,12 @@ type PondBind struct {
 	Name   string `json:"name" binding:"required,max=100,min=4"`
 	FarmID string `json:"farm_id" binding:"required"`
 }
+
+type PondApi struct {
+	ID        string    `json:"id"`
+	FarmID    string    `json:"farm_id"`
+	Farm      Farm      `json:"farm"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

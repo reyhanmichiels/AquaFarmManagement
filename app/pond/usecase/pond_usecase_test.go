@@ -344,3 +344,63 @@ func TestGet(t *testing.T) {
 		getPondsMock.Unset()
 	})
 }
+
+func TestGetPondById(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		//prepare usecase parameter
+		pondId := "pondID"
+
+		// call mock
+		pondResponse := domain.PondApi{
+			ID:     "pondID",
+			Name:   "pondName",
+			FarmID: "farmID",
+			Farm: domain.Farm{
+				Name: "farmName",
+				ID:   "farmID",
+			},
+		}
+		var pond domain.PondApi
+		getPondsMock := pondRepository.Mock.On("GetPondById", &pond, pondId).Return(nil).Run(func(args mock.Arguments) {
+			arg := args[0].(*domain.PondApi)
+			arg.ID = pondResponse.ID
+			arg.Name = pondResponse.Name
+			arg.FarmID = pondResponse.FarmID
+			arg.Farm = pondResponse.Farm
+		})
+
+		// call usecase
+		successResponse, errorResponse := pondUsecase.GetPondById(pondId)
+
+		//test response
+		assert.Nil(t, errorResponse, "error response should be nil")
+
+		assert.Equal(t, pondResponse.ID, successResponse.ID, "pond id should be equal")
+		assert.Equal(t, pondResponse.Name, successResponse.Name, "pond name should be equal")
+		assert.Equal(t, pondResponse.FarmID, successResponse.FarmID, "farm id should be equal")
+		assert.Equal(t, pondResponse.Farm, successResponse.Farm, "farm should be equal")
+
+		getPondsMock.Unset()
+	})
+
+	t.Run("should return error when pond is not found", func(t *testing.T) {
+		//prepare usecase parameter
+		pondId := "pondID"
+
+		// call mock
+		var pond domain.PondApi
+		getPondsMock := pondRepository.Mock.On("GetPondById", &pond, pondId).Return(errors.New(""))
+
+		// call usecase
+		_, errorResponse := pondUsecase.GetPondById(pondId)
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusNotFound, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to get pond by id", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("pond not found"), errObject.Err, "error should be equal")
+
+		getPondsMock.Unset()
+	})
+}
