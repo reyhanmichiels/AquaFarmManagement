@@ -39,3 +39,13 @@ func (pondUsecaseMock *PondUsecaseMock) Get() ([]domain.Pond, any) {
 
 	return args[0].([]domain.Pond), nil
 }
+
+func (pondUsecaseMock *PondUsecaseMock) GetPondById(pondId string) (domain.PondApi, any) {
+	args := pondUsecaseMock.Mock.Called(pondId)
+
+	if args[1] != nil {
+		return domain.PondApi{}, args[1].(util.ErrorObject)
+	}
+
+	return args[0].(domain.PondApi), nil
+}
