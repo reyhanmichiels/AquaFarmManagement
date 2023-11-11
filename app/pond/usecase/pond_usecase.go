@@ -15,6 +15,7 @@ type IPondUsecase interface {
 	Update(request domain.PondBind, pondId string) (domain.Pond, any)
 	Get() ([]domain.Pond, any)
 	GetPondById(pondId string) (domain.PondApi, any)
+	Delete(pondId string) any
 }
 
 type PondUsecase struct {
@@ -147,4 +148,29 @@ func (pondUsecase *PondUsecase) GetPondById(pondId string) (domain.PondApi, any)
 	}
 
 	return pond, nil
+}
+
+func (pondUsecase *PondUsecase) Delete(pondId string) any {
+	var pond domain.Pond
+	// check if pond exist
+	isPondExist := pondUsecase.pondRepository.FindPondByCondition(&pond, "id = ?", pondId)
+	if isPondExist != nil {
+		return util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("pond not found"),
+			Message: "failed to delete pond",
+		}
+	}
+
+	//delete pond
+	err := pondUsecase.pondRepository.DeletePond(&pond)
+	if err != nil {
+		return util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to delete pond",
+		}
+	}
+
+	return nil
 }
