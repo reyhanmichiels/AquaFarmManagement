@@ -36,6 +36,8 @@ func (rest *Rest) FarmRoute(farmHandler *farm_handler.FarmHandler) {
 
 func (rest *Rest) PondRoute(pondHanler *pond_handler.PondHandler) {
 	rest.engine.POST("/api/ponds", pondHanler.Create)
+	rest.engine.PUT("/api/ponds/:pondId", pondHanler.Update)
+
 }
 
 func (rest *Rest) Serve() {
