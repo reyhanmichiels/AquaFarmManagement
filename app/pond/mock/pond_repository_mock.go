@@ -28,3 +28,13 @@ func (pondRepositoryMock *PondRepositoryMock) CreatePond(pond *domain.Pond) erro
 
 	return nil
 }
+
+func (pondRepositoryMock *PondRepositoryMock) UpdatePond(pond *domain.Pond) error {
+	args := pondRepositoryMock.Mock.Called(pond)
+
+	if args[0] != nil {
+		return args[0].(error)
+	}
+
+	return nil
+}
