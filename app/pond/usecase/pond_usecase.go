@@ -14,6 +14,7 @@ type IPondUsecase interface {
 	Create(request domain.PondBind) (domain.Pond, any)
 	Update(request domain.PondBind, pondId string) (domain.Pond, any)
 	Get() ([]domain.Pond, any)
+	GetPondById(pondId string) (domain.PondApi, any)
 }
 
 type PondUsecase struct {
@@ -129,4 +130,21 @@ func (pondUsecase *PondUsecase) Get() ([]domain.Pond, any) {
 	}
 
 	return ponds, nil
+}
+
+func (pondUsecase *PondUsecase) GetPondById(pondId string) (domain.PondApi, any) {
+	// get ponds
+	var pond domain.PondApi
+	isPondExist := pondUsecase.pondRepository.GetPondById(&pond, pondId)
+
+	// check if pond exist
+	if isPondExist != nil {
+		return domain.PondApi{}, util.ErrorObject{
+			Code:    http.StatusNotFound,
+			Err:     errors.New("pond not found"),
+			Message: "failed to get pond by id",
+		}
+	}
+
+	return pond, nil
 }

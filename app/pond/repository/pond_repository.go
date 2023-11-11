@@ -10,6 +10,7 @@ type IPondRepository interface {
 	CreatePond(pond *domain.Pond) error
 	UpdatePond(pond *domain.Pond) error
 	GetPonds(ponds *[]domain.Pond) error
+	GetPondById(pond *domain.PondApi, pondId string) error
 }
 
 type PondRepository struct {
@@ -55,5 +56,10 @@ func (pondRepository *PondRepository) UpdatePond(pond *domain.Pond) error {
 
 func (pondRepository *PondRepository) GetPonds(ponds *[]domain.Pond) error {
 	err := pondRepository.db.Find(&ponds).Error
+	return err
+}
+
+func (pondRepository *PondRepository) GetPondById(pond *domain.PondApi, pondId string) error {
+	err := pondRepository.db.Model(&domain.Pond{}).Preload("Farm").First(pond, "id = ?", pondId).Error
 	return err
 }
