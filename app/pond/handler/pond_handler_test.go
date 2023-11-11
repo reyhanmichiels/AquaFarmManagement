@@ -482,3 +482,80 @@ func TestGetPondById(t *testing.T) {
 		mockCall.Unset()
 	})
 }
+
+func TestDel(t *testing.T) {
+	t.Run("should can delete pond", func(t *testing.T) {
+		// prepare request param
+		pondId := "pondID"
+
+		// call mock
+		mockCall := pondUsecaseMock.Mock.On("Delete", pondId).Return(nil)
+
+		// call handler
+		engine := gin.Default()
+		engine.DELETE("/api/ponds/:pondId", pondHandler.Delete)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("DELETE", fmt.Sprintf("/api/ponds/%s", pondId), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Nil(t, responseBody["data"], "data should be nil")
+		assert.Equal(t, http.StatusOK, response.Code, "status code should be equal")
+		assert.Equal(t, "success", responseBody["status"], "status should be equal")
+		assert.Equal(t, "successfully delete pond", responseBody["message"], "message should be equal")
+
+		mockCall.Unset()
+	})
+
+	t.Run("should reject if usecase call return error", func(t *testing.T) {
+		// prepare request param
+		pondId := "pondID"
+
+		// call mock
+		errObject := util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     errors.New("testError"),
+			Message: "test message",
+		}
+		mockCall := pondUsecaseMock.Mock.On("Delete", pondId).Return(errObject)
+
+		// call handler
+		engine := gin.Default()
+		engine.DELETE("/api/ponds/:pondId", pondHandler.Delete)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("DELETE", fmt.Sprintf("/api/ponds/%s", pondId), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseBody["status"], "status should be equal")
+		assert.Equal(t, errObject.Message, responseBody["message"], "message should be equal")
+		assert.Equal(t, errObject.Err.Error(), responseBody["error"], "error should be equal")
+
+		mockCall.Unset()
+	})
+}
