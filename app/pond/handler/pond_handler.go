@@ -59,7 +59,7 @@ func (pondHandler *PondHandler) Update(c *gin.Context) {
 		return
 	}
 
-	util.SuccessResponse(c, http.StatusCreated, "successfully update pond", pond)
+	util.SuccessResponse(c, http.StatusOK, "successfully update pond", pond)
 }
 
 func (pondHandler *PondHandler) Get(c *gin.Context) {
