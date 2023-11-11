@@ -39,6 +39,9 @@ func main() {
 	//init rest
 	rest := rest.NewRest(gin.New())
 
+	//use middleware
+	rest.UseGlobalMiddleware()
+
 	//load route
 	rest.HealthCheckRoute()
 	rest.FarmRoute(farmHandler)
