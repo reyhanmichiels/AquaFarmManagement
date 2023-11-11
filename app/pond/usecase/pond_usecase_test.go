@@ -268,3 +268,79 @@ func TestUpdate(t *testing.T) {
 		updatePondMock.Unset()
 	})
 }
+
+func TestGet(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		// call mock
+		pondsResponse := []domain.Pond{
+			{
+				ID:     "pondID1",
+				Name:   "pondName1",
+				FarmID: "farmID1",
+			},
+			{
+				ID:     "pondID2",
+				Name:   "pondName2",
+				FarmID: "farmID2",
+			},
+			{
+				ID:     "pondID3",
+				Name:   "pondName3",
+				FarmID: "farmID3",
+			},
+		}
+		var ponds []domain.Pond
+		getPondsMock := pondRepository.Mock.On("GetPonds", &ponds).Return(nil).Run(func(args mock.Arguments) {
+			arg := args[0].(*[]domain.Pond)
+			*arg = append(*arg, pondsResponse...)
+		})
+
+		// call usecase
+		successResponse, errorResponse := pondUsecase.Get()
+
+		//test response
+		assert.Nil(t, errorResponse, "error response should be nil")
+		for i, v := range successResponse {
+			assert.Equal(t, pondsResponse[i].ID, v.ID, "pond id should be equal")
+			assert.Equal(t, pondsResponse[i].Name, v.Name, "pond name should be equal")
+			assert.Equal(t, pondsResponse[i].FarmID, v.FarmID, "farm id should be equal")
+		}
+
+		getPondsMock.Unset()
+	})
+
+	t.Run("should return error when pond not found", func(t *testing.T) {
+		// call mock
+		var ponds []domain.Pond
+		getPondsMock := pondRepository.Mock.On("GetPonds", &ponds).Return(nil)
+
+		// call usecase
+		_, errorResponse := pondUsecase.Get()
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusNotFound, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to get all pond", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("pond not found"), errObject.Err, "error should be equal")
+
+		getPondsMock.Unset()
+	})
+
+	t.Run("should return error when fail get ponds", func(t *testing.T) {
+		// call mock
+		var ponds []domain.Pond
+		getPondsMock := pondRepository.Mock.On("GetPonds", &ponds).Return(errors.New("testError"))
+
+		// call usecase
+		_, errorResponse := pondUsecase.Get()
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusInternalServerError, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to get all pond", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("testError"), errObject.Err, "error should be equal")
+		getPondsMock.Unset()
+	})
+}
