@@ -138,3 +138,133 @@ func TestCreate(t *testing.T) {
 		createPondMock.Unset()
 	})
 }
+
+func TestUpdate(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		// prepare usecase parameter
+		request := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		pondId := "pondID"
+
+		// call mock
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "name = ?", request.Name).Return(errors.New("pond is not found"))
+		findFarmMock := farmRepository.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", request.FarmID).Return(nil)
+
+		var pond domain.Pond
+
+		findPondByIdMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "id = ?", pondId).Return(nil)
+
+		pond.ID = pondId
+		pond.Name = request.Name
+		pond.FarmID = request.FarmID
+
+		updatePondMock := pondRepository.Mock.On("UpdatePond", &pond).Return(nil)
+
+		// call usecase
+		successResponse, errorResponse := pondUsecase.Update(request, pondId)
+
+		//test response
+		assert.Nil(t, errorResponse, "error response should be nil")
+		assert.Equal(t, pondId, successResponse.ID, "pond id should be equal")
+		assert.Equal(t, request.Name, successResponse.Name, "pond name should be equal")
+		assert.Equal(t, request.FarmID, successResponse.FarmID, "farm id should be equal")
+
+		findPondMock.Unset()
+		findFarmMock.Unset()
+		findPondByIdMock.Unset()
+		updatePondMock.Unset()
+	})
+
+	t.Run("should return error when duplicate entry", func(t *testing.T) {
+		// prepare usecase parameter
+		request := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		pondId := "pondID"
+
+		// call mock
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "name = ?", request.Name).Return(nil)
+
+		// call usecase
+		_, errorResponse := pondUsecase.Update(request, pondId)
+		errObject := errorResponse.(util.ErrorObject)
+
+		//test response
+		assert.Equal(t, http.StatusConflict, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to update pond", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("pond name is already used"), errObject.Err, "error should be equal")
+
+		findPondMock.Unset()
+	})
+
+	t.Run("should return error when farm is not found", func(t *testing.T) {
+		// prepare usecase parameter
+		request := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		pondId := "pondID"
+
+		// call mock
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "name = ?", request.Name).Return(errors.New("pond is not found"))
+		findFarmMock := farmRepository.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", request.FarmID).Return(errors.New("farm is not found"))
+
+		// call usecase
+		_, errorResponse := pondUsecase.Update(request, pondId)
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusBadRequest, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to update pond", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("farm is not found"), errObject.Err, "error should be equal")
+
+		findPondMock.Unset()
+		findFarmMock.Unset()
+	})
+
+	t.Run("should return error when failed to update pond", func(t *testing.T) {
+		// prepare usecase parameter
+		request := domain.PondBind{
+			Name:   "pondName",
+			FarmID: "farmID",
+		}
+
+		pondId := "pondID"
+
+		// call mock
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "name = ?", request.Name).Return(errors.New("pond is not found"))
+		findFarmMock := farmRepository.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", request.FarmID).Return(nil)
+
+		var pond domain.Pond
+
+		findPondByIdMock := pondRepository.Mock.On("FindPondByCondition", &domain.Pond{}, "id = ?", pondId).Return(nil)
+
+		pond.ID = pondId
+		pond.Name = request.Name
+		pond.FarmID = request.FarmID
+
+		updatePondMock := pondRepository.Mock.On("UpdatePond", &pond).Return(errors.New("testError"))
+
+		// call usecase
+		_, errorResponse := pondUsecase.Update(request, pondId)
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusInternalServerError, errObject.Code, "status code should be equal")
+		assert.Equal(t, "failed to update pond", errObject.Message, "message should be equal")
+		assert.Equal(t, errors.New("testError"), errObject.Err, "error should be equal")
+
+		findPondMock.Unset()
+		findFarmMock.Unset()
+		findPondByIdMock.Unset()
+		updatePondMock.Unset()
+	})
+}
