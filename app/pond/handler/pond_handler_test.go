@@ -332,7 +332,7 @@ func TestGetPonds(t *testing.T) {
 		}
 
 		// test response
-		assert.Equal(t, http.StatusCreated, response.Code, "status code should be equal")
+		assert.Equal(t, http.StatusOK, response.Code, "status code should be equal")
 		assert.Equal(t, "success", responseBody["status"], "status should be equal")
 		assert.Equal(t, "successfully get all pond", responseBody["message"], "message should be equal")
 
