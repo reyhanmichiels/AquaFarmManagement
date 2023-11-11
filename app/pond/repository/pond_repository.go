@@ -8,6 +8,7 @@ import (
 type IPondRepository interface {
 	FindPondByCondition(pond any, condition string, value any) error
 	CreatePond(pond *domain.Pond) error
+	UpdatePond(pond *domain.Pond) error
 }
 
 type PondRepository struct {
@@ -29,6 +30,19 @@ func (pondRepository *PondRepository) CreatePond(pond *domain.Pond) error {
 	tx := pondRepository.db.Begin()
 
 	err := tx.Create(pond).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (pondRepository *PondRepository) UpdatePond(pond *domain.Pond) error {
+	tx := pondRepository.db.Begin()
+
+	err := tx.Save(pond).Error
 	if err != nil {
 		tx.Rollback()
 		return err
