@@ -404,3 +404,68 @@ func TestGetPondById(t *testing.T) {
 		getPondsMock.Unset()
 	})
 }
+
+func TestDelete(t *testing.T) {
+	t.Run("should return success", func(t *testing.T) {
+		//prepare usecase parameter
+		pondId := "pondID"
+
+		// call mock
+		var pond domain.Pond
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &pond, "id = ?", pondId).Return(nil)
+		deletePondMock := pondRepository.Mock.On("DeletePond", &pond).Return(nil)
+
+		// call usecase
+		errorResponse := pondUsecase.Delete(pondId)
+
+		//test response
+		assert.Nil(t, errorResponse, "error response should be nil")
+
+		findPondMock.Unset()
+		deletePondMock.Unset()
+	})
+
+	t.Run("should return error when pond is not found", func(t *testing.T) {
+		//prepare usecase parameter
+		pondId := "pondID"
+
+		// call mock
+		var pond domain.Pond
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &pond, "id = ?", pondId).Return(errors.New(""))
+
+		// call usecase
+		errorResponse := pondUsecase.Delete(pondId)
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusNotFound, errObject.Code, "status code should be equal")
+		assert.Equal(t, errors.New("pond not found"), errObject.Err, "error should be equal")
+		assert.Equal(t, "failed to delete pond", errObject.Message, "message should be equal")
+
+		findPondMock.Unset()
+	})
+
+	t.Run("should return error when failed to delete pond", func(t *testing.T) {
+		//prepare usecase parameter
+		pondId := "pondID"
+
+		// call mock
+		var pond domain.Pond
+		findPondMock := pondRepository.Mock.On("FindPondByCondition", &pond, "id = ?", pondId).Return(nil)
+		deletePondMock := pondRepository.Mock.On("DeletePond", &pond).Return(errors.New("testError"))
+
+		// call usecase
+		errorResponse := pondUsecase.Delete(pondId)
+
+		//test response
+		errObject := errorResponse.(util.ErrorObject)
+
+		assert.Equal(t, http.StatusInternalServerError, errObject.Code, "status code should be equal")
+		assert.Equal(t, errors.New("testError"), errObject.Err, "error should be equal")
+		assert.Equal(t, "failed to delete pond", errObject.Message, "message should be equal")
+
+		findPondMock.Unset()
+		deletePondMock.Unset()
+	})
+}
