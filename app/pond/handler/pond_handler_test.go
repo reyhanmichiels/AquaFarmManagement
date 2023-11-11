@@ -289,3 +289,100 @@ func TestUpdate(t *testing.T) {
 		mockCall.Unset()
 	})
 }
+
+func TestGetPonds(t *testing.T) {
+	t.Run("should can get ponds", func(t *testing.T) {
+		// call mock
+		mockResponse := []domain.Pond{
+			{
+				ID:     "pondID1",
+				Name:   "pondName1",
+				FarmID: "farmID1",
+			},
+			{
+				ID:     "pondID2",
+				Name:   "pondName2",
+				FarmID: "farmID2",
+			},
+			{
+				ID:     "pondID3",
+				Name:   "pondName3",
+				FarmID: "farmID3",
+			},
+		}
+		mockCall := pondUsecaseMock.Mock.On("Get").Return(mockResponse, nil)
+
+		// call handler
+		engine := gin.Default()
+		engine.GET("/api/ponds", pondHandler.Get)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("GET", "/api/ponds", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, http.StatusCreated, response.Code, "status code should be equal")
+		assert.Equal(t, "success", responseBody["status"], "status should be equal")
+		assert.Equal(t, "successfully get all pond", responseBody["message"], "message should be equal")
+
+		pondsData := responseBody["data"].([]interface{})
+
+		for i, v := range pondsData {
+			v := v.(map[string]any)
+
+			assert.Equal(t, mockResponse[i].ID, v["id"], "pond id should be equal")
+			assert.Equal(t, mockResponse[i].Name, v["name"], "pond name should be equal")
+			assert.Equal(t, mockResponse[i].FarmID, v["farm_id"], "farm id should be equal")
+		}
+
+		mockCall.Unset()
+	})
+
+	t.Run("should reject when usecase call return error", func(t *testing.T) {
+		// call mock
+		errObject := util.ErrorObject{
+			Code:    http.StatusInternalServerError,
+			Err:     errors.New("testError"),
+			Message: "test message",
+		}
+		mockCall := pondUsecaseMock.Mock.On("Get").Return(nil, errObject)
+
+		// call handler
+		engine := gin.Default()
+		engine.GET("/api/ponds", pondHandler.Get)
+
+		response := httptest.NewRecorder()
+		request, err := http.NewRequest("GET", "/api/ponds", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		engine.ServeHTTP(response, request)
+
+		// parsing response body
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// test response
+		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
+		assert.Equal(t, "error", responseBody["status"], "status should be equal")
+		assert.Equal(t, errObject.Message, responseBody["message"], "message should be equal")
+		assert.Equal(t, errObject.Err.Error(), responseBody["error"], "error should be equal")
+
+		mockCall.Unset()
+	})
+}
