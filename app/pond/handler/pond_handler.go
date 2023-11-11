@@ -59,5 +59,17 @@ func (pondHandler *PondHandler) Update(c *gin.Context) {
 		return
 	}
 
-	util.SuccessResponse(c, http.StatusCreated, "successfully create pond", pond)
+	util.SuccessResponse(c, http.StatusCreated, "successfully update pond", pond)
+}
+
+func (pondHandler *PondHandler) Get(c *gin.Context) {
+	// get ponds
+	ponds, errObject := pondHandler.pondUsecase.Get()
+	if errObject != nil {
+		errObject := errObject.(util.ErrorObject)
+		util.FailResponse(c, errObject.Code, errObject.Message, errObject.Err)
+		return
+	}
+
+	util.SuccessResponse(c, http.StatusCreated, "successfully get all pond", ponds)
 }
