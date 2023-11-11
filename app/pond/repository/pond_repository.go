@@ -11,6 +11,7 @@ type IPondRepository interface {
 	UpdatePond(pond *domain.Pond) error
 	GetPonds(ponds *[]domain.Pond) error
 	GetPondById(pond *domain.PondApi, pondId string) error
+	DeletePond(pond *domain.Pond) error
 }
 
 type PondRepository struct {
@@ -62,4 +63,17 @@ func (pondRepository *PondRepository) GetPonds(ponds *[]domain.Pond) error {
 func (pondRepository *PondRepository) GetPondById(pond *domain.PondApi, pondId string) error {
 	err := pondRepository.db.Model(&domain.Pond{}).Preload("Farm").First(pond, "id = ?", pondId).Error
 	return err
+}
+
+func (pondRepository *PondRepository) DeletePond(pond *domain.Pond) error {
+	tx := pondRepository.db.Begin()
+
+	err := tx.Delete(pond).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
 }
