@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	api_call_handler "github.com/reyhanmichiels/AquaFarmManagement/app/api_call/handler"
 	farm_handler "github.com/reyhanmichiels/AquaFarmManagement/app/farm/handler"
 	pond_handler "github.com/reyhanmichiels/AquaFarmManagement/app/pond/handler"
+	"github.com/reyhanmichiels/AquaFarmManagement/middleware"
 )
 
 type Rest struct {
@@ -40,6 +42,15 @@ func (rest *Rest) PondRoute(pondHanler *pond_handler.PondHandler) {
 	rest.engine.GET("/api/ponds/:pondId", pondHanler.GetPondById)
 	rest.engine.PUT("/api/ponds/:pondId", pondHanler.Update)
 	rest.engine.DELETE("/api/ponds/:pondId", pondHanler.Delete)
+}
+
+func (rest *Rest) ApiCallRoute(apiCallHandler *api_call_handler.ApiCallHandler) {
+	rest.engine.GET("/api/api-calls", apiCallHandler.Get)
+
+}
+
+func (rest *Rest) UseGlobalMiddleware() {
+	rest.engine.Use(middleware.RecordApiCallMiddleware)
 }
 
 func (rest *Rest) Serve() {
