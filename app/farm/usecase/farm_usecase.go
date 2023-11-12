@@ -85,6 +85,7 @@ func (farmUsecase *FarmUsecase) Update(request domain.FarmBind, farmId string) (
 }
 
 func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
+	// get farms
 	var farms []domain.Farm
 	err := farmUsecase.farmRepository.GetFarms(&farms)
 	if err != nil {
@@ -95,6 +96,7 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 		}
 	}
 
+	// check if farm exist
 	if len(farms) == 0 {
 		return nil, util.ErrorObject{
 			Code:    http.StatusNotFound,
