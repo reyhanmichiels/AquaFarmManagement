@@ -156,7 +156,7 @@ func (pondUsecase *PondUsecase) Delete(pondId string) any {
 	isPondExist := pondUsecase.pondRepository.FindPondByCondition(&pond, "id = ?", pondId)
 	if isPondExist != nil {
 		return util.ErrorObject{
-			Code:    http.StatusNotFound,
+			Code:    http.StatusBadRequest,
 			Err:     errors.New("pond not found"),
 			Message: "failed to delete pond",
 		}

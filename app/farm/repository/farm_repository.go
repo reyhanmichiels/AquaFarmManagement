@@ -26,12 +26,7 @@ func NewFarmRepository(db *gorm.DB) IFarmRepository {
 
 func (farmRepo *FarmRepository) FindFarmByCondition(farm any, condition string, value any) error {
 	err := farmRepo.db.Model(&domain.Farm{}).First(farm, condition, value).Error
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (farmRepo *FarmRepository) CreateFarm(farm *domain.Farm) error {
@@ -62,20 +57,12 @@ func (farmRepo *FarmRepository) UpdateFarm(farm *domain.Farm) error {
 
 func (farmRepo *FarmRepository) GetFarms(farms *[]domain.Farm) error {
 	err := farmRepo.db.Find(farms).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (farmRepo *FarmRepository) GetFarmById(farm *domain.FarmApi, farmId string) error {
 	err := farmRepo.db.Model(&domain.Farm{}).Preload("Ponds").First(farm, "id = ?", farmId).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (farmRepo *FarmRepository) DeleteFarm(farm *domain.Farm) error {
