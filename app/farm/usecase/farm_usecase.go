@@ -126,7 +126,7 @@ func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any)
 }
 
 func (farmUsecase *FarmUsecase) Delete(farmId string) any {
-	//check is farm exist
+	//check if farm exist
 	var farm domain.Farm
 	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&farm, "id = ?", farmId)
 	if isFarmExist != nil {
