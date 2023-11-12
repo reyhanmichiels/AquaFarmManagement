@@ -26,12 +26,7 @@ func NewFarmRepository(db *gorm.DB) IFarmRepository {
 
 func (farmRepo *FarmRepository) FindFarmByCondition(farm any, condition string, value any) error {
 	err := farmRepo.db.Model(&domain.Farm{}).First(farm, condition, value).Error
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (farmRepo *FarmRepository) CreateFarm(farm *domain.Farm) error {
