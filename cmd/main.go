@@ -21,6 +21,9 @@ func main() {
 	//load env
 	infrastructure.LoadEnv()
 
+	//create logger
+	infrastructure.CreateLogger()
+
 	//connect to database
 	database.ConnectToDB()
 
