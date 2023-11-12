@@ -385,24 +385,24 @@ func TestGetFarmById(t *testing.T) {
 		engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
 
 		response := httptest.NewRecorder()
-		requestCall, err := http.NewRequest("GET", fmt.Sprintf("/api/farms/%s", mockCallResponse.ID), nil)
+		request, err := http.NewRequest("GET", fmt.Sprintf("/api/farms/%s", mockCallResponse.ID), nil)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		engine.ServeHTTP(response, requestCall)
+		engine.ServeHTTP(response, request)
 
 		//test response
-		var responseData map[string]any
-		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		farmData := responseData["data"].(map[string]any)
+		farmData := responseBody["data"].(map[string]any)
 		assert.Equal(t, http.StatusOK, response.Code, "status code should be equal")
-		assert.Equal(t, "success", responseData["status"], "status should be equal")
-		assert.Equal(t, "successfully get farm by id", responseData["message"], "message should be equal")
+		assert.Equal(t, "success", responseBody["status"], "status should be equal")
+		assert.Equal(t, "successfully get farm by id", responseBody["message"], "message should be equal")
 		assert.Equal(t, mockCallResponse.ID, farmData["id"], "farm id should be equal")
 		assert.Equal(t, mockCallResponse.Name, farmData["name"], "farm name should be equal")
 
@@ -420,9 +420,9 @@ func TestGetFarmById(t *testing.T) {
 	t.Run("should reject when usecase call return error", func(t *testing.T) {
 		// call mock
 		errObject := util.ErrorObject{
-			Code:    http.StatusNotFound,
-			Message: "failed to get farm by id",
-			Err:     errors.New("record not found"),
+			Code:    http.StatusInternalServerError,
+			Message: "testMessage",
+			Err:     errors.New("testError"),
 		}
 		mockCall := farmUsecaseMock.Mock.On("GetFarmById", "testID").Return(nil, errObject)
 
@@ -431,24 +431,24 @@ func TestGetFarmById(t *testing.T) {
 		engine.GET("/api/farms/:farmId", farmHandler.GetFarmById)
 
 		response := httptest.NewRecorder()
-		requestCall, err := http.NewRequest("GET", "/api/farms/testID", nil)
+		request, err := http.NewRequest("GET", "/api/farms/testID", nil)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		engine.ServeHTTP(response, requestCall)
+		engine.ServeHTTP(response, request)
 
 		//test response
-		var responseData map[string]any
-		err = json.Unmarshal(response.Body.Bytes(), &responseData)
+		var responseBody map[string]any
+		err = json.Unmarshal(response.Body.Bytes(), &responseBody)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
 		assert.Equal(t, errObject.Code, response.Code, "status code should be equal")
-		assert.Equal(t, "error", responseData["status"], "status should be equal")
-		assert.Equal(t, "record not found", responseData["error"], "error should be equal")
-		assert.Equal(t, errObject.Message, responseData["message"], "message should be equal")
+		assert.Equal(t, "error", responseBody["status"], "status should be equal")
+		assert.Equal(t, errObject.Err.Error(), responseBody["error"], "error should be equal")
+		assert.Equal(t, errObject.Message, responseBody["message"], "message should be equal")
 
 		mockCall.Unset()
 	})
