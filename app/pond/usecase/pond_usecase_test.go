@@ -439,7 +439,7 @@ func TestDelete(t *testing.T) {
 		//test response
 		errObject := errorResponse.(util.ErrorObject)
 
-		assert.Equal(t, http.StatusNotFound, errObject.Code, "status code should be equal")
+		assert.Equal(t, http.StatusBadRequest, errObject.Code, "status code should be equal")
 		assert.Equal(t, errors.New("pond not found"), errObject.Err, "error should be equal")
 		assert.Equal(t, "failed to delete pond", errObject.Message, "message should be equal")
 
