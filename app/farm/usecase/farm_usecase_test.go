@@ -21,28 +21,28 @@ var farmUsecase = NewFarmUsecase(&farmRepositoryMock)
 
 func TestCreate(t *testing.T) {
 	t.Run("should return success", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "test_name",
 		}
 
 		//call mock
 		farm := domain.Farm{
-			Name: parameter.Name,
+			Name: request.Name,
 		}
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(errors.New("not found"))
 		createFarmMock := farmRepositoryMock.Mock.On("CreateFarm", &farm).Return(nil).Run(func(args mock.Arguments) {
 			arg := args[0].(*domain.Farm)
 			arg.ID = "testId"
-			arg.Name = parameter.Name
+			arg.Name = request.Name
 		})
 
 		//call usecase
-		successResponse, errorResponse := farmUsecase.Create(parameter)
+		successResponse, errorResponse := farmUsecase.Create(request)
 
 		//test result
 		assert.Nil(t, errorResponse, "err response should be nil")
-		assert.Equal(t, parameter.Name, successResponse.Name, "name should be equal")
+		assert.Equal(t, request.Name, successResponse.Name, "name should be equal")
 		assert.Equal(t, "testId", successResponse.ID, "name should be equal")
 
 		findFarmMock.Unset()
@@ -50,16 +50,16 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("should return error when duplicate entry", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "test_name",
 		}
 
 		//call mock
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(nil)
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(nil)
 
 		//call usecase
-		_, errorResponse := farmUsecase.Create(parameter)
+		_, errorResponse := farmUsecase.Create(request)
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
@@ -71,24 +71,24 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("should return error when failed to create farm", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "test_name",
 		}
 
 		//call mock
 		farm := domain.Farm{
-			Name: parameter.Name,
+			Name: request.Name,
 		}
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
-		createFarmMock := farmRepositoryMock.Mock.On("CreateFarm", &farm).Return(errors.New("sql failed"))
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(errors.New("not found"))
+		createFarmMock := farmRepositoryMock.Mock.On("CreateFarm", &farm).Return(errors.New("testError"))
 
 		//call usecase
-		_, errorResponse := farmUsecase.Create(parameter)
+		_, errorResponse := farmUsecase.Create(request)
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
-		assert.Equal(t, errors.New("sql failed"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, errors.New("testError"), errObjectFromResponse.Err, "error should be equal")
 		assert.Equal(t, http.StatusInternalServerError, errObjectFromResponse.Code, "status code should be equal")
 		assert.Equal(t, "failed to create farm", errObjectFromResponse.Message, "message should be equal")
 
@@ -99,8 +99,8 @@ func TestCreate(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	t.Run("should return success", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "testUpdateName",
 		}
 		farmId := "testId"
@@ -108,21 +108,21 @@ func TestUpdate(t *testing.T) {
 		//call mock
 		farm := domain.Farm{
 			ID:   farmId,
-			Name: parameter.Name,
+			Name: request.Name,
 		}
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(errors.New("not found"))
 		findFarmByIdMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", farmId).Return(nil)
 		updateFarmMock := farmRepositoryMock.Mock.On("UpdateFarm", &farm).Return(nil).Run(func(args mock.Arguments) {
 			arg := args[0].(*domain.Farm)
 			arg.ID = farmId
-			arg.Name = parameter.Name
+			arg.Name = request.Name
 		})
 
-		successResponse, errorResponse := farmUsecase.Update(parameter, farmId)
+		successResponse, errorResponse := farmUsecase.Update(request, farmId)
 
 		//test result
 		assert.Nil(t, errorResponse, "err response should be nil")
-		assert.Equal(t, parameter.Name, successResponse.Name, "name should be equal")
+		assert.Equal(t, request.Name, successResponse.Name, "name should be equal")
 		assert.Equal(t, farmId, successResponse.ID, "name should be equal")
 
 		findFarmMock.Unset()
@@ -131,16 +131,16 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("should return error when duplicate entry", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "testUpdateName",
 		}
 		farmId := "testId"
 
 		//call mock
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(nil)
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(nil)
 
-		_, errorResponse := farmUsecase.Update(parameter, farmId)
+		_, errorResponse := farmUsecase.Update(request, farmId)
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
@@ -152,8 +152,8 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("should return error when failed update farm", func(t *testing.T) {
-		//prepare data for func parameter
-		parameter := domain.FarmBind{
+		//prepare usecase parameter
+		request := domain.FarmBind{
 			Name: "testUpdateName",
 		}
 		farmId := "testId"
@@ -161,13 +161,13 @@ func TestUpdate(t *testing.T) {
 		//call mock
 		farm := domain.Farm{
 			ID:   farmId,
-			Name: parameter.Name,
+			Name: request.Name,
 		}
-		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
+		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", request.Name).Return(errors.New("not found"))
 		findFarmByIdMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", farmId).Return(nil)
 		updateFarmMock := farmRepositoryMock.Mock.On("UpdateFarm", &farm).Return(errors.New("sql failed"))
 
-		_, errorResponse := farmUsecase.Update(parameter, farmId)
+		_, errorResponse := farmUsecase.Update(request, farmId)
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
@@ -216,16 +216,16 @@ func TestGet(t *testing.T) {
 		getFarmsMock.Unset()
 	})
 
-	t.Run("should return error when sql failed", func(t *testing.T) {
+	t.Run("should return error when usecase call return error", func(t *testing.T) {
 		//call mock
 		var farms []domain.Farm
-		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(errors.New("sql failed"))
+		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(errors.New("testError"))
 
 		_, errorResponse := farmUsecase.Get()
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
-		assert.Equal(t, errors.New("sql failed"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, errors.New("testError"), errObjectFromResponse.Err, "error should be equal")
 		assert.Equal(t, http.StatusInternalServerError, errObjectFromResponse.Code, "status code should be equal")
 		assert.Equal(t, "failed to get all farm", errObjectFromResponse.Message, "message should be equal")
 
@@ -302,7 +302,7 @@ func TestGetFarmById(t *testing.T) {
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
-		assert.Equal(t, errors.New("record not found"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, errors.New("farm not found"), errObjectFromResponse.Err, "error should be equal")
 		assert.Equal(t, http.StatusNotFound, errObjectFromResponse.Code, "status code should be equal")
 		assert.Equal(t, "failed to get farm by id", errObjectFromResponse.Message, "message should be equal")
 
@@ -312,7 +312,7 @@ func TestGetFarmById(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	t.Run("should return success", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock
@@ -330,7 +330,7 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("should return error when farm not found", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock
@@ -349,7 +349,7 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("should return error when sql failed", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock

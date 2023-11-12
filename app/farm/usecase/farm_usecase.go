@@ -85,6 +85,7 @@ func (farmUsecase *FarmUsecase) Update(request domain.FarmBind, farmId string) (
 }
 
 func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
+	// get farms
 	var farms []domain.Farm
 	err := farmUsecase.farmRepository.GetFarms(&farms)
 	if err != nil {
@@ -95,6 +96,7 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 		}
 	}
 
+	// check if farm exist
 	if len(farms) == 0 {
 		return nil, util.ErrorObject{
 			Code:    http.StatusNotFound,
@@ -107,12 +109,15 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 }
 
 func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any) {
+	// get farm by id
 	var farm domain.FarmApi
 	isFarmExist := farmUsecase.farmRepository.GetFarmById(&farm, farmId)
+
+	// check if farm exist
 	if isFarmExist != nil {
 		return domain.FarmApi{}, util.ErrorObject{
 			Code:    http.StatusNotFound,
-			Err:     isFarmExist,
+			Err:     errors.New("farm not found"),
 			Message: "failed to get farm by id",
 		}
 	}
@@ -121,7 +126,7 @@ func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any)
 }
 
 func (farmUsecase *FarmUsecase) Delete(farmId string) any {
-	//check is farm exist
+	//check if farm exist
 	var farm domain.Farm
 	isFarmExist := farmUsecase.farmRepository.FindFarmByCondition(&farm, "id = ?", farmId)
 	if isFarmExist != nil {
