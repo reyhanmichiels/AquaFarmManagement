@@ -50,6 +50,7 @@ func (rest *Rest) ApiCallRoute(apiCallHandler *api_call_handler.ApiCallHandler) 
 }
 
 func (rest *Rest) UseGlobalMiddleware() {
+	rest.engine.Use(middleware.LogEvent)
 	rest.engine.Use(middleware.RecordApiCallMiddleware)
 }
 
