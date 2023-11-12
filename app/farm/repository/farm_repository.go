@@ -57,11 +57,7 @@ func (farmRepo *FarmRepository) UpdateFarm(farm *domain.Farm) error {
 
 func (farmRepo *FarmRepository) GetFarms(farms *[]domain.Farm) error {
 	err := farmRepo.db.Find(farms).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (farmRepo *FarmRepository) GetFarmById(farm *domain.FarmApi, farmId string) error {
