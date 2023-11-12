@@ -81,6 +81,18 @@ func (farmRepo *FarmRepository) GetFarmById(farm *domain.FarmApi, farmId string)
 func (farmRepo *FarmRepository) DeleteFarm(farm *domain.Farm) error {
 	tx := farmRepo.db.Begin()
 
+	var ponds []domain.Pond
+	tx.Model(&domain.Pond{}).Find(&ponds, "farm_id = ?", farm.ID)
+	if len(ponds) != 0 {
+		for _, pond := range ponds {
+			err := tx.Delete(&pond).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
 	err := tx.Delete(farm).Error
 	if err != nil {
 		tx.Rollback()
