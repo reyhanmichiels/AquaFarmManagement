@@ -312,7 +312,7 @@ func TestGetFarmById(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	t.Run("should return success", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock
@@ -330,7 +330,7 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("should return error when farm not found", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock
@@ -349,7 +349,7 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("should return error when sql failed", func(t *testing.T) {
-		//prepare data for func parameter
+		//prepare usecase parameter
 		farmId := "testId"
 
 		//call mock
