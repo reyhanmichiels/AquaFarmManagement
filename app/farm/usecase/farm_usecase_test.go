@@ -111,6 +111,7 @@ func TestUpdate(t *testing.T) {
 			Name: parameter.Name,
 		}
 		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
+		findFarmByIdMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", farmId).Return(nil)
 		updateFarmMock := farmRepositoryMock.Mock.On("UpdateFarm", &farm).Return(nil).Run(func(args mock.Arguments) {
 			arg := args[0].(*domain.Farm)
 			arg.ID = farmId
@@ -125,6 +126,7 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, farmId, successResponse.ID, "name should be equal")
 
 		findFarmMock.Unset()
+		findFarmByIdMock.Unset()
 		updateFarmMock.Unset()
 	})
 
@@ -162,6 +164,7 @@ func TestUpdate(t *testing.T) {
 			Name: parameter.Name,
 		}
 		findFarmMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "name = ?", parameter.Name).Return(errors.New("not found"))
+		findFarmByIdMock := farmRepositoryMock.Mock.On("FindFarmByCondition", &domain.Farm{}, "id = ?", farmId).Return(nil)
 		updateFarmMock := farmRepositoryMock.Mock.On("UpdateFarm", &farm).Return(errors.New("sql failed"))
 
 		_, errorResponse := farmUsecase.Update(parameter, farmId)
@@ -173,6 +176,7 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, "failed to update farm", errObjectFromResponse.Message, "message should be equal")
 
 		findFarmMock.Unset()
+		findFarmByIdMock.Unset()
 		updateFarmMock.Unset()
 	})
 }
