@@ -66,10 +66,12 @@ func (farmUsecase *FarmUsecase) Update(request domain.FarmBind, farmId string) (
 	}
 
 	// update farm
-	farm := domain.Farm{
-		ID:   farmId,
-		Name: request.Name,
-	}
+	var farm domain.Farm
+	farmUsecase.farmRepository.FindFarmByCondition(&farm, "id = ?", farmId)
+
+	farm.ID = farmId
+	farm.Name = request.Name
+
 	err := farmUsecase.farmRepository.UpdateFarm(&farm)
 	if err != nil {
 		return domain.Farm{}, util.ErrorObject{
