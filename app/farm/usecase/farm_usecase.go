@@ -109,12 +109,15 @@ func (farmUsecase *FarmUsecase) Get() ([]domain.Farm, any) {
 }
 
 func (farmUsecase *FarmUsecase) GetFarmById(farmId string) (domain.FarmApi, any) {
+	// get farm by id
 	var farm domain.FarmApi
 	isFarmExist := farmUsecase.farmRepository.GetFarmById(&farm, farmId)
+
+	// check if farm exist
 	if isFarmExist != nil {
 		return domain.FarmApi{}, util.ErrorObject{
 			Code:    http.StatusNotFound,
-			Err:     isFarmExist,
+			Err:     errors.New("farm not found"),
 			Message: "failed to get farm by id",
 		}
 	}

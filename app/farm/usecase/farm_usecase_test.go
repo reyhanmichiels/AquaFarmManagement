@@ -216,16 +216,16 @@ func TestGet(t *testing.T) {
 		getFarmsMock.Unset()
 	})
 
-	t.Run("should return error when sql failed", func(t *testing.T) {
+	t.Run("should return error when usecase call return error", func(t *testing.T) {
 		//call mock
 		var farms []domain.Farm
-		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(errors.New("sql failed"))
+		getFarmsMock := farmRepositoryMock.Mock.On("GetFarms", &farms).Return(errors.New("testError"))
 
 		_, errorResponse := farmUsecase.Get()
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
-		assert.Equal(t, errors.New("sql failed"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, errors.New("testError"), errObjectFromResponse.Err, "error should be equal")
 		assert.Equal(t, http.StatusInternalServerError, errObjectFromResponse.Code, "status code should be equal")
 		assert.Equal(t, "failed to get all farm", errObjectFromResponse.Message, "message should be equal")
 
@@ -302,7 +302,7 @@ func TestGetFarmById(t *testing.T) {
 
 		//test result
 		errObjectFromResponse := errorResponse.(util.ErrorObject)
-		assert.Equal(t, errors.New("record not found"), errObjectFromResponse.Err, "error should be equal")
+		assert.Equal(t, errors.New("farm not found"), errObjectFromResponse.Err, "error should be equal")
 		assert.Equal(t, http.StatusNotFound, errObjectFromResponse.Code, "status code should be equal")
 		assert.Equal(t, "failed to get farm by id", errObjectFromResponse.Message, "message should be equal")
 
