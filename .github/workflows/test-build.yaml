@@ -23,4 +23,4 @@ jobs:
         run: go test ./... --cover
 
       - name : build
-        run: go build 
+        run: go build ./bin ./cmd
