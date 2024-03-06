@@ -24,7 +24,3 @@ jobs:
 
       - name: build
         run: go build -o ./bin/app ./cmd
-
-      - name: debug
-        run: |
-          echo ${{ secrets.wrong_name }}

@@ -37,7 +37,7 @@ jobs:
               with:
                 host: ${{ secrets.EC2_SSH_HOST }}
                 username: ${{ secrets.EC2_SSH_USERNAME }}
-                password: ${{ secrets.EC2_SSH_PASSWORD }}
+                key: ${{ secrets.EC2_SSH_KEY }}
                 port: ${{ secrets.EC2_SSH_PORT }}
                 script: |
                   sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
