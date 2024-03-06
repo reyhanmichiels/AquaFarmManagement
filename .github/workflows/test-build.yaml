@@ -27,4 +27,4 @@ jobs:
 
       - name: debug
         run: |
-          echo ${{ secrets.EC2_SSH_USERNAME }}
+          echo ${{ secrets.wrong_name }}
