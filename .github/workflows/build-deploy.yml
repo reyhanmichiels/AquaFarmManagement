@@ -40,7 +40,7 @@ jobs:
                 password: ${{ secrets.EC2_SSH_PASSWORD }}
                 port: ${{ secrets.EC2_SSH_PORT }}
                 script: |
-                  docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-                  docker pull reyhan/aquafarm:latest
+                  sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+                  sudo docker pull reyhan/aquafarm:latest
                   docker compose --env-file .env down
                   docker compose --env-file .env up -d
