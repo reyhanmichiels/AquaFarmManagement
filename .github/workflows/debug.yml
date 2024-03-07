@@ -1,4 +1,4 @@
-name: test-build
+name: debug
 
 on:
   push:
@@ -23,6 +23,11 @@ jobs:
         run: |
           echo ls before fill
           ls
-          echo test >> test.tx
+          echo ${{ secrets.ENV }} >> .env
+          cat .env
           echo ls after fill
           ls
+      - name: build_docker_image
+        run: |
+          ls
+          docker build .
