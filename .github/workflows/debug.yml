@@ -1,0 +1,28 @@
+name: test-build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up Go Environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.0"
+
+      - name: Prepare environment
+        run: |
+          echo ls before fill
+          ls
+          echo test >> test.tx
+          echo ls after fill
+          ls
