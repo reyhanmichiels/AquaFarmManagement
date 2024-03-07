@@ -4,7 +4,6 @@ services:
 #   service_aqua_farm_management:
 #     image: reyhanmichiels/aquafarm:latest
 #     container_name: service_aqua_farm_management
-#     env_file: .env
 #     ports:
 #       - 8080:8080
 #     restart: on-failure
