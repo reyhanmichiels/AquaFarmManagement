@@ -23,12 +23,15 @@ jobs:
       - name: Prepare environment
         run: |
           echo ls before fill
-          ls
+          ls -a
           echo ${{ secrets.ENV }} >> .env
+          echo .env value
           cat .env
           echo ls after fill
-          ls
+          ls -a
       - name: build_docker_image
         run: |
-          ls
+          ls -a
+          echo env value
+          cat .env
           docker build .
