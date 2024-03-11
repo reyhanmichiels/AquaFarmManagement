@@ -36,8 +36,7 @@ jobs:
       - name: Build and push
         run: |
           ls -a
-          docker buildx build . -t reyhan/aquafarm:latest
-          docker push reyhan/aquafarm:latest
+          docker buildx build . -t reyhan/aquafarm:latest --push
 
       - name: deploy
         uses: appleboy/ssh-action@v1.0.3
