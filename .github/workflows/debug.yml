@@ -36,6 +36,7 @@ jobs:
       - name: Build and push
         run: |
           ls -a
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           docker buildx build . -t reyhan/aquafarm:latest --push
 
       - name: deploy
