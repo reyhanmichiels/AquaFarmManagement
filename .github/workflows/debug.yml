@@ -2,7 +2,7 @@ name: debug
 
 on:
   workflow_dispatch:
-  pull_request: 
+  pull_request:
     branches:
       - main
 
@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: reyhanmichiels/aquafarm:latest
+          tags: reyhanmichiels/aquafarm:1.0.0
 
       - name: deploy
         uses: appleboy/ssh-action@v1.0.3
