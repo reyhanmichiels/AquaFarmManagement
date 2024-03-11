@@ -34,10 +34,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: reyhanmichiels/aquafarm:1.0.0
+        run: |
+          ls -a
+          docker buildx build . -t reyhan/aquafarm:latest
+          docker push reyhan/aquafarm:latest
 
       - name: deploy
         uses: appleboy/ssh-action@v1.0.3
