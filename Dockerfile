@@ -8,4 +8,4 @@ FROM alpine:3.18
 WORKDIR /app/
 COPY --from=builder /app/ .
 RUN touch .env
-CMD /app/binary
+CMD /app/binary/app
