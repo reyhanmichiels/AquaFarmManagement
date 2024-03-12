@@ -23,7 +23,7 @@ func NewRest(engine *gin.Engine) Rest {
 func (rest *Rest) HealthCheckRoute() {
 	rest.engine.GET("/api/health-check", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
-			"status": "success",
+			"status": "successfully run health check",
 		})
 	})
 }
